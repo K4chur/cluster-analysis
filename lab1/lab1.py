@@ -8,7 +8,7 @@ from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import confusion_matrix
 
 
-def calculate_distance(vector1, vector2, method="Евклідова", W=None):
+def calculate_distance(vector1, vector2, method="Евклідова",p = 3, W=None):
     if len(vector1) != len(vector2):
         raise ValueError("Вектори повинні мати однакову довжину")
 
@@ -18,7 +18,7 @@ def calculate_distance(vector1, vector2, method="Евклідова", W=None):
     if method == "Евклідова":
         distance = np.linalg.norm(vector1 - vector2)
     elif method == "Міньковського":
-        p = 3  # Можете змінити потрібне значення p
+          # Можете змінити потрібне значення p
         distance = np.power(np.sum(np.abs(vector1 - vector2) ** p), 1 / p)
     elif method == "Махалонобіса":
         if W is None:
@@ -216,7 +216,7 @@ linkage_matrix = sch.linkage(small_data, method='ward')
 plt.figure(figsize=(8, 6))
 dendrogram(linkage_matrix, orientation='right', labels=[f'Data {i + 1}' for i in range(small_data.shape[0])],
            distance_sort='descending')
-plt.title('Кругова дендрограма ієрархічної кластеризації')
+plt.title('дендрограма ієрархічної кластеризації')
 plt.xlabel('Відстань')
 plt.show()
 
@@ -254,7 +254,8 @@ sorted_confusion_k_matrix = confusion_k[row_k_ind][:, col_k_ind]
 print("Sorted Confusion Matrix for K-means:")
 print(sorted_confusion_k_matrix)
 
-row_hierarchical_ind, col_hierarchical_ind = linear_sum_assignment(-confusion_hierarchical)  # Додаємо мінус перед матрицею для максимізації
+row_hierarchical_ind, col_hierarchical_ind = linear_sum_assignment(
+    -confusion_hierarchical)  # Додаємо мінус перед матрицею для максимізації
 sorted_confusion_hierarchical_matrix = confusion_hierarchical[row_hierarchical_ind][:, col_hierarchical_ind]
 
 print("Sorted Confusion Matrix for Hierarchical:")
@@ -263,7 +264,8 @@ print(sorted_confusion_hierarchical_matrix)
 errors_k = np.sum(sorted_confusion_k_matrix) - np.sum(np.diag(sorted_confusion_k_matrix))
 
 # Обчислюємо кількість помилок для ієрархічної кластеризації
-errors_hierarchical = np.sum(sorted_confusion_hierarchical_matrix) - np.sum(np.diag(sorted_confusion_hierarchical_matrix))
+errors_hierarchical = np.sum(sorted_confusion_hierarchical_matrix) - np.sum(
+    np.diag(sorted_confusion_hierarchical_matrix))
 
 # Обчислюємо загальну кількість точок
 total_points_k = np.sum(sorted_confusion_k_matrix)
@@ -275,8 +277,3 @@ error_percentage_hierarchical = (errors_hierarchical / total_points_hierarchical
 
 print(f"\nВідсоток помилок для K-means: {error_percentage_k}%")
 print(f"Відсоток помилок для Hierarchical: {error_percentage_hierarchical}%")
-
-
-
-
-
