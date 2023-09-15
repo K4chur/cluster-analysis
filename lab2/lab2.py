@@ -4,6 +4,7 @@ import skfuzzy as fuzz
 from scipy.optimize import linear_sum_assignment
 from sklearn.metrics import confusion_matrix
 from gk import GK
+from gg import GG
 
 mu1 = np.array([1, 1])
 mu2 = np.array([1, -9])
@@ -55,27 +56,18 @@ for c in c_values:
     gk_clustering = GK(n_clusters=c, max_iter=1000, m=m, error=epsilon)
     centers = gk_clustering.fit(data)
     clastersGK = gk_clustering.predict(data)
-    last_u_matrix = gk_clustering.last_u
+    uGK = gk_clustering.last_u
     print(f"\nМатриця ймовірностей GK з {c} кластерами:")
-    print(last_u_matrix.T)
+    print(uGK.T)
     print(f"Вектор cl GK з {c} кластерами:")
     print(clastersGK)
 
     ##################################################################################################
 
-    covariances = []  # Створюємо порожній список для зберігання матриць коваріацій
-
-    for i in range(c):
-        covariance = np.eye(data.shape[1]) * (i + 1) / 2  # Створюємо матрицю коваріацій для кожного кластера
-        covariances.append(covariance)
-
-    uGG = np.zeros((c, data.shape[0]))
-    for i in range(c):
-        diff = data - centers[i]  # Використовуємо центроїди кластерів
-        inv_covariance = np.linalg.inv(covariances[i])  # Матриця коваріацій кластера
-        det_covariance = np.linalg.det(covariances[i])
-        for j in range(data.shape[0]):
-            uGG[i, j] = 1 / (1e-6 + np.power(np.linalg.norm(diff[j]), 2 / (m - 1)) * det_covariance)
+    gg_clustering = GG(n_clusters=c, max_iter=1000, m=m, error=epsilon)
+    centers = gk_clustering.fit(data)
+    clastersGG = gk_clustering.predict(data)
+    uGG = gk_clustering.last_u
 
     # Матриця ймовірностей GG
     muGG = uGG.T

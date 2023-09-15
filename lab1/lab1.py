@@ -18,7 +18,7 @@ def calculate_distance(vector1, vector2, method="Евклідова",p = 3, W=No
     if method == "Евклідова":
         distance = np.linalg.norm(vector1 - vector2)
     elif method == "Міньковського":
-          # Можете змінити потрібне значення p
+        # Можете змінити потрібне значення p
         distance = np.power(np.sum(np.abs(vector1 - vector2) ** p), 1 / p)
     elif method == "Махалонобіса":
         if W is None:

@@ -2,11 +2,10 @@ import numpy as np
 from scipy.linalg import norm
 
 
-class GK:
+class GG:
     def __init__(self, n_clusters=4, max_iter=100, m=2, error=1e-6):
         super().__init__()
         self.u, self.centers, self.f = None, None, None
-        self.last_u = None
         self.clusters_count = n_clusters
         self.max_iter = max_iter
         self.m = m
@@ -27,7 +26,6 @@ class GK:
             f = self._covariance(z, centers, u)
             dist = self._distance(z, centers, f)
             u = self.next_u(dist)
-            self.last_u = u
             iteration += 1
 
             # Stopping rule
@@ -55,12 +53,20 @@ class GK:
         return numerator / denominator
 
     def _distance(self, z, v, f):
-        dif = np.expand_dims(z.reshape(z.shape[0], 1, -1) - v.reshape(1, v.shape[0], -1), axis=3)
-        determ = np.power(np.linalg.det(f), 1 / self.m)
-        det_time_inv = determ.reshape(-1, 1, 1) * np.linalg.pinv(f)
-        temp = np.matmul(dif.transpose((0, 1, 3, 2)), det_time_inv)
-        output = np.matmul(temp, dif).squeeze().T
-        return np.fmax(output, 1e-8)
+        distances = []
+        for j in range(v.shape[0]):
+            Wj = f[j]  # Коваріаційна матриця Wj
+            alpha_j = np.sum(u[:, j]) / N  # Ваговий коефіцієнт alpha_j згідно вашої формули
+
+            dist = []
+            for i in range(z.shape[0]):
+                diff = z[i] - v[j]
+                exponent = np.exp(-0.5 * np.dot(diff, np.dot(np.linalg.inv(Wj), diff)))
+                distance = ((2 * np.pi) ** (len(diff) / 2) * np.sqrt(np.linalg.det(Wj)) / alpha_j) * exponent
+                dist.append(distance)
+            distances.append(dist)
+
+        return np.array(distances)
 
     def next_u(self, d):
         power = float(1 / (self.m - 1))
